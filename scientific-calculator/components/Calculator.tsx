@@ -6,7 +6,8 @@ import Display from './Display';
 import Button from './Button';
 
 const Calculator: React.FC = () => {
-  const [display, setDisplay] = useState('0');
+  const [resultDisplay, setResultDisplay] = useState('0'); // Holds the result of operations or error messages
+  const [currentInput, setCurrentInput] = useState('0'); // Holds the numbers currently being typed by the user
   const [currentValue, setCurrentValue] = useState('');
   const [operator, setOperator] = useState<string | null>(null);
   const [waitingForOperand, setWaitingForOperand] = useState(false);
@@ -41,36 +42,41 @@ const Calculator: React.FC = () => {
 
 
   const append = (value: string) => {
-    if (display.includes('Error')) { // Clear error message before appending
-        setDisplay('0');
+    if (resultDisplay.includes('Error')) { // Clear error message before appending
+        setResultDisplay('0'); // Clear the error message from the result display
+        setCurrentInput(value); // Start new input
+        setWaitingForOperand(false);
+        return;
     }
-    if (value === '.' && display.includes('.')) return;
+    if (value === '.' && currentInput.includes('.')) return;
     if (waitingForOperand) {
-      setDisplay(value);
+      setCurrentInput(value);
       setWaitingForOperand(false);
     } else {
-      setDisplay(display === '0' ? value : display + value);
+      setCurrentInput(currentInput === '0' ? value : currentInput + value);
     }
   };
 
   const clear = () => {
-    setDisplay('0');
+    setResultDisplay('0'); // Changed from setDisplay
+    setCurrentInput('0');
     setCurrentValue('');
     setOperator(null);
     setWaitingForOperand(false);
   };
 
   const backspace = () => {
-    if (display.includes('Error')) { // Clear error message on backspace
-        setDisplay('0');
+    if (resultDisplay.includes('Error')) { // Clear error message on backspace
+        setResultDisplay('0');
+        setCurrentInput('0'); // Also reset currentInput
         return;
     }
-    setDisplay(display.length === 1 ? '0' : display.slice(0, -1));
+    setCurrentInput(currentInput.length === 1 ? '0' : currentInput.slice(0, -1));
   };
 
 
   const performOperation = (nextOperator: string) => {
-    const inputValue = parseFloat(display);
+    const inputValue = parseFloat(currentInput);
 
     if (currentValue === '') {
       setCurrentValue(String(inputValue));
@@ -89,7 +95,7 @@ const Calculator: React.FC = () => {
           break;
         case '/':
           if (inputValue === 0) {
-            setDisplay('Error: Div by zero');
+            setResultDisplay('Error: Div by zero');
             setCurrentValue('');
             setOperator(null);
             setWaitingForOperand(true);
@@ -104,17 +110,18 @@ const Calculator: React.FC = () => {
           return;
       }
       setCurrentValue(String(result));
-      setDisplay(String(result));
+      setResultDisplay(String(result));
     }
     setWaitingForOperand(true);
     setOperator(nextOperator);
+    setCurrentInput('0'); // Reset currentInput after an operation
   };
 
   const calculate = () => {
     if (currentValue === '' || operator === null || waitingForOperand) return;
 
     const prevValue = parseFloat(currentValue);
-    const inputValue = parseFloat(display);
+    const inputValue = parseFloat(currentInput);
 
     let result: number;
     try {
@@ -130,7 +137,7 @@ const Calculator: React.FC = () => {
           break;
         case '/':
           if (inputValue === 0) {
-            setDisplay('Error: Div by zero');
+            setResultDisplay('Error: Div by zero');
             setCurrentValue('');
             setOperator(null);
             setWaitingForOperand(true);
@@ -145,11 +152,12 @@ const Calculator: React.FC = () => {
           throw new Error('Invalid operator');
       }
       setCurrentValue(String(result));
-      setDisplay(String(result));
+      setResultDisplay(String(result));
+      setCurrentInput(String(result)); // Update currentInput with the result as well
       setOperator(null);
       setWaitingForOperand(true);
     } catch (e: any) {
-      setDisplay(`Error: ${e.message}`);
+      setResultDisplay(`Error: ${e.message}`);
       setCurrentValue('');
       setOperator(null);
       setWaitingForOperand(true);
@@ -157,9 +165,9 @@ const Calculator: React.FC = () => {
   };
 
   const scientificFunc = (func: string) => {
-    const inputValue = parseFloat(display);
+    const inputValue = parseFloat(currentInput);
     if (isNaN(inputValue)) {
-      setDisplay('Error: Invalid input');
+      setResultDisplay('Error: Invalid input');
       return;
     }
     let result: number;
@@ -175,14 +183,14 @@ const Calculator: React.FC = () => {
         break;
       case 'log':
         if (inputValue <= 0) {
-          setDisplay('Error: Log of non-positive');
+          setResultDisplay('Error: Log of non-positive');
           return;
         }
         result = Math.log10(inputValue); // Base 10 log
         break;
       case 'sqrt':
         if (inputValue < 0) {
-          setDisplay('Error: Sqrt of negative');
+          setResultDisplay('Error: Sqrt of negative');
           return;
         }
         result = Math.sqrt(inputValue);
@@ -190,7 +198,8 @@ const Calculator: React.FC = () => {
       default:
         return;
     }
-    setDisplay(String(result));
+    setResultDisplay(String(result));
+    setCurrentInput(String(result)); // Update currentInput with the result as well
     setCurrentValue(String(result));
     setOperator(null);
     setWaitingForOperand(true);
@@ -209,7 +218,7 @@ const Calculator: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 p-4">
       <div className="bg-gray-700 p-6 rounded-lg shadow-xl max-w-sm mx-auto">
-        <Display value={display} />
+        <Display value={resultDisplay.includes('Error') ? resultDisplay : (waitingForOperand ? resultDisplay : currentInput)} />
         <div className="grid grid-cols-4 gap-2 mt-4">
           {buttonLayout.map((row, rowIndex) => (
             row.map((buttonLabel, colIndex) => {
