@@ -1,4 +1,6 @@
 // scientific-calculator/components/Calculator.tsx
+"use client";
+
 import React, { useState, useEffect } from 'react'; // Added useEffect
 import Display from './Display';
 import Button from './Button';
