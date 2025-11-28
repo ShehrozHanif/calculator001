@@ -7,7 +7,7 @@
 
 ## Summary
 
-The purpose of this application is to provide a fully functional calculator with basic arithmetic operations, scientific functions, keyboard support, and a modern iOS-style rounded UI. The app will be deployable on Vercel. The technical approach will leverage Next.js, React, and Tailwind CSS for a responsive web application.
+The purpose of this application is to provide a fully functional calculator with basic arithmetic operations, scientific functions, keyboard support, and a modern iOS-style rounded UI. The app will be deployable on Vercel. The technical approach will leverage Next.js, React, and Tailwind CSS for a responsive web application. A key enhancement includes a refined display behavior where only numbers are visible during input, with operators remaining functional but hidden from the main display.
 
 ## Technical Context
 
