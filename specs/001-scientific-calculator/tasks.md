@@ -26,60 +26,61 @@
 - [X] T006 [P] Align text to right in `scientific-calculator/src/components/Display.tsx`.
 - [X] T007 [P] Handle long expressions with `break-words` CSS in `scientific-calculator/src/components/Display.tsx`.
 - [X] T008 [P] Apply rounded and shadow styling to Display in `scientific-calculator/src/components/Display.tsx`.
-- [X] T009 [P] Render clickable Button with label and onClick handler in `scientific-calculator/src/components/Button.tsx`.
-- [X] T010 [P] Implement variant styles (default, operator, action, scientific) for Button in `scientific-calculator/src/components/Button.tsx`.
-- [X] T011 [P] Add click feedback to Button in `scientific-calculator/src/components/Button.tsx`.
+- [X] T009 [P] Ensure display shows **numbers only** when typing. Operators should not appear in the display in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T010 [P] Render clickable Button with label and onClick handler in `scientific-calculator/src/components/Button.tsx`.
+- [X] T011 [P] Implement variant styles (default, operator, action, scientific) for Button in `scientific-calculator/src/components/Button.tsx`.
+- [X] T012 [P] Add click feedback to Button in `scientific-calculator/src/components/Button.tsx`.
 
 ## Phase 3: Calculator Logic
 
 **Purpose**: Implement the core calculation and state management logic within the Calculator component.
 
-- [X] T012 Initialize display state (`useState('0')`) in `scientific-calculator/src/components/Calculator.tsx`.
-- [X] T013 Implement `append(value)` function to update display in `scientific-calculator/src/components/Calculator.tsx`.
-- [X] T014 Implement `clear()` function to reset display in `scientific-calculator/src/components/Calculator.tsx`.
-- [X] T015 Implement `backspace()` function to delete last input in `scientific-calculator/src/components/Calculator.tsx`.
-- [X] T016 Implement `calculate()` function for safe arithmetic evaluation in `scientific-calculator/src/components/Calculator.tsx`.
-- [X] T017 Implement `scientificFunc(func)` for sin, cos, tan, log, sqrt in `scientific-calculator/src/components/Calculator.tsx`.
-- [X] T018 Render `Display` component with current value in `scientific-calculator/src/components/Calculator.tsx`.
-- [X] T019 Render `Button` components for numbers, operators, actions, and scientific functions in `scientific-calculator/src/components/Calculator.tsx`.
-- [X] T020 Handle error states (division by zero, invalid input) in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T013 Initialize display state (`useState('0')`) in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T014 Implement `append(value)` function to update display in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T015 Implement `clear()` function to reset display in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T016 Implement `backspace()` function to delete last input in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T017 Implement `calculate()` function for safe arithmetic evaluation in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T018 Implement `scientificFunc(func)` for sin, cos, tan, log, sqrt in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T019 Render `Display` component with current value in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T020 Render `Button` components for numbers, operators, actions, and scientific functions in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T021 Handle error states (division by zero, invalid input) in `scientific-calculator/src/components/Calculator.tsx`.
 
 ## Phase 4: UI/UX and Layout
 
 **Purpose**: Refine the visual appearance and ensure responsiveness.
 
-- [X] T021 [P] Implement iOS-style rounded buttons across the application (global/Tailwind config) in `scientific-calculator/tailwind.config.js` and CSS.
-- [X] T022 [P] Apply distinct color schemes for button variants (default, operator, action, scientific) in `scientific-calculator/src/components/Button.tsx`.
-- [X] T023 [P] Implement grid layout for buttons in `scientific-calculator/src/components/Calculator.tsx`.
-- [X] T024 Ensure responsiveness on mobile and desktop for `scientific-calculator/src/components/Calculator.tsx` and global CSS.
+- [X] T022 [P] Implement iOS-style rounded buttons across the application (global/Tailwind config) in `scientific-calculator/tailwind.config.js` and CSS.
+- [X] T023 [P] Apply distinct color schemes for button variants (default, operator, action, scientific) in `scientific-calculator/src/components/Button.tsx`.
+- [X] T024 [P] Implement grid layout for buttons in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T025 Ensure responsiveness on mobile and desktop for `scientific-calculator/src/components/Calculator.tsx` and global CSS.
 
 ## Phase 5: Keyboard Support
 
 **Purpose**: Add keyboard input functionality.
 
-- [X] T025 Implement keyboard event listeners for numbers, operators, Enter, Backspace, Escape in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T026 Implement keyboard event listeners for numbers, operators (functional but hidden from display), Enter, Backspace, Escape in `scientific-calculator/src/components/Calculator.tsx`.
 
 ## Phase 6: Integration & Testing
 
 **Purpose**: Integrate components and perform initial functional testing.
 
-- [X] T026 Integrate `Calculator` component into `scientific-calculator/src/app/page.tsx`.
-- [X] T027 Verify functionality of all buttons, scientific features, keyboard support, and error handling for the integrated application.
+- [X] T027 Integrate `Calculator` component into `scientific-calculator/src/app/page.tsx`.
+- [X] T028 Verify functionality of all buttons, scientific features, keyboard support, and error handling for the integrated application.
 
 ## Phase 7: Deployment
 
 **Purpose**: Prepare for and deploy the application.
 
-- [X] T028 Push `scientific-calculator/` project to GitHub and deploy to Vercel.
+- [X] T029 Push `scientific-calculator/` project to GitHub and deploy to Vercel.
 
 ## Phase 8: Future Enhancements (Optional, Post MVP)
 
 **Purpose**: Outline potential future improvements.
 
-- [X] T029 Add more scientific functions (e.g., factorial, constants) to `scientific-calculator/src/components/Calculator.tsx`.
-- [X] T030 Implement a history log for previous calculations in `scientific-calculator/src/components/Calculator.tsx`.
-- [X] T031 Implement theme switching (light/dark mode) for the application.
-- [X] T032 Improve expression parsing for safer evaluation in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T030 Add more scientific functions (e.g., factorial, constants) to `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T031 Implement a history log for previous calculations in `scientific-calculator/src/components/Calculator.tsx`.
+- [X] T032 Implement theme switching (light/dark mode) for the application.
+- [X] T033 Improve expression parsing for safer evaluation in `scientific-calculator/src/components/Calculator.tsx`.
 
 ## Dependencies & Execution Order
 
