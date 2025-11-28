@@ -6,11 +6,10 @@ import Display from './Display';
 import Button from './Button';
 
 const Calculator: React.FC = () => {
-  const [resultDisplay, setResultDisplay] = useState('0'); // Holds the result of operations or error messages
-  const [currentInput, setCurrentInput] = useState('0'); // Holds the numbers currently being typed by the user
-  const [currentValue, setCurrentValue] = useState('');
-  const [operator, setOperator] = useState<string | null>(null);
-  const [waitingForOperand, setWaitingForOperand] = useState(false);
+  const [displayValue, setDisplayValue] = useState('0'); // What is currently shown on the display
+  const [currentValue, setCurrentValue] = useState(''); // Stores the first operand for binary operations
+  const [operator, setOperator] = useState<string | null>(null); // Stores the pending operator
+  const [waitingForOperand, setWaitingForOperand] = useState(false); // Flag if an operator was just pressed or result shown
 
   // --- Keyboard Support (T025) ---
   useEffect(() => {
@@ -19,12 +18,12 @@ const Calculator: React.FC = () => {
 
       if (['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'].includes(key)) {
         append(key);
-      } else if (['+', '-', '*', '/'].includes(key)) {
+      if (['+', '-', '*', '/'].includes(key)) {
         performOperation(key);
       } else if (key === '^') {
         performOperation(key);
       } else if (key === 'Enter') {
-        event.preventDefault(); // Prevent default form submission if any
+        event.preventDefault();
         calculate();
       } else if (key === 'Backspace') {
         backspace();
@@ -38,159 +37,158 @@ const Calculator: React.FC = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [resultDisplay, currentInput, currentValue, operator, waitingForOperand]); // Dependencies for useEffect
+  }, [displayValue, currentValue, operator, waitingForOperand]); // Updated dependencies
 
 
   const append = (value: string) => {
-    if (resultDisplay.includes('Error')) { // Clear error message before appending
-        setResultDisplay('0'); // Clear the error message from the result display
-        setCurrentInput(value); // Start new input
-        setWaitingForOperand(false);
-        return;
-    }
-    if (value === '.' && currentInput.includes('.')) return;
-    if (waitingForOperand) {
-      setCurrentInput(value);
+    // If an error is displayed or we are starting a new operand
+    if (displayValue.includes('Error') || waitingForOperand) {
+      setDisplayValue(value);
       setWaitingForOperand(false);
     } else {
-      setCurrentInput(currentInput === '0' ? value : currentInput + value);
+      // Handle leading '0'
+      if (displayValue === '0' && value !== '.') {
+        setDisplayValue(value);
+      } else if (value === '.' && displayValue.includes('.')) {
+        // Prevent multiple decimal points in the current number
+        return;
+      } else {
+        setDisplayValue(prev => prev + value);
+      }
     }
   };
 
   const clear = () => {
-    setResultDisplay('0'); // Changed from setDisplay
-    setCurrentInput('0');
+    setDisplayValue('0');
     setCurrentValue('');
     setOperator(null);
     setWaitingForOperand(false);
   };
 
   const backspace = () => {
-    if (resultDisplay.includes('Error')) { // Clear error message on backspace
-        setResultDisplay('0');
-        setCurrentInput('0'); // Also reset currentInput
+    if (displayValue.includes('Error')) { // Clear error message on backspace
+        setDisplayValue('0');
+        setCurrentValue('');
+        setOperator(null);
+        setWaitingForOperand(false);
         return;
     }
-    setCurrentInput(currentInput.length === 1 ? '0' : currentInput.slice(0, -1));
+    setDisplayValue(displayValue.length === 1 ? '0' : displayValue.slice(0, -1));
   };
 
 
   const performOperation = (nextOperator: string) => {
-    const inputValue = parseFloat(currentInput);
+    if (displayValue.includes('Error')) return; // If error, user must clear
 
-    if (currentValue === '') {
-      setCurrentValue(String(inputValue));
-    } else if (operator) {
-      const prevValue = parseFloat(currentValue);
-      let result: number;
-      switch (operator) {
-        case '+':
-          result = prevValue + inputValue;
-          break;
-        case '-':
-          result = prevValue - inputValue;
-          break;
-        case '*':
-          result = prevValue * inputValue;
-          break;
-        case '/':
-          if (inputValue === 0) {
-            setResultDisplay('Error: Div by zero');
-            setCurrentValue('');
-            setOperator(null);
-            setWaitingForOperand(true);
-            return;
-          }
-          result = prevValue / inputValue;
-          break;
-        case '^': // Power operation
-          result = Math.pow(prevValue, inputValue);
-          break;
-        default:
-          return;
-      }
-      setCurrentValue(String(result));
-      setResultDisplay(String(result));
+    // Prevent consecutive operators, or operator at start of expression
+    const lastChar = displayValue.slice(-1);
+    if (['+', '-', '*', '/', '^'].includes(lastChar) || displayValue === '0') {
+        // Replace existing operator or prevent leading operator
+        setDisplayValue(prev => prev.slice(0, -1) + nextOperator);
+        setOperator(nextOperator); // Update operator
+        return;
     }
-    setWaitingForOperand(true);
-    setOperator(nextOperator);
-    setCurrentInput('0'); // Reset currentInput after an operation
+
+    // Append operator to displayValue
+    setDisplayValue(prev => prev + nextOperator);
+    setOperator(nextOperator); // Store operator for calculation
+    setWaitingForOperand(true); // Flag that we're waiting for next number
   };
 
   const calculate = () => {
-    if (currentValue === '' || operator === null || waitingForOperand) return;
+    if (displayValue.includes('Error')) return; // If error, user must clear
+    if (displayValue === '') return; // No expression to calculate
 
-    const prevValue = parseFloat(currentValue);
-    const inputValue = parseFloat(currentInput);
+    let expressionToEvaluate = displayValue;
 
-    let result: number;
+    // Replace '^' with '**' for Math.pow compatibility
+    expressionToEvaluate = expressionToEvaluate.replace(/\^/g, '**');
+
     try {
-      switch (operator) {
-        case '+':
-          result = prevValue + inputValue;
-          break;
-        case '-':
-          result = prevValue - inputValue;
-          break;
-        case '*':
-          result = prevValue * inputValue;
-          break;
-        case '/':
-          if (inputValue === 0) {
-            setResultDisplay('Error: Div by zero');
-            setCurrentValue('');
-            setOperator(null);
-            setWaitingForOperand(true);
-            return;
-          }
-          result = prevValue / inputValue;
-          break;
-        case '^': // Power operation
-          result = Math.pow(prevValue, inputValue);
-          break;
-        default:
-          throw new Error('Invalid operator');
+      // Basic validation to prevent arbitrary code execution with eval
+      // This is a minimal check, for a real app a dedicated parser is needed.
+      if (!/^[\d+\-*/().\s**]+$/.test(expressionToEvaluate)) {
+        throw new Error('Invalid expression');
       }
-      setCurrentValue(String(result));
-      setResultDisplay(String(result));
-      setCurrentInput(String(result)); // Update currentInput with the result as well
+      // eslint-disable-next-line no-eval
+      let result = eval(expressionToEvaluate);
+
+      if (isNaN(result) || !isFinite(result)) {
+        throw new Error('Invalid calculation');
+      }
+
+      setDisplayValue(String(result));
+      setCurrentValue(String(result)); // Store result for chaining operations
       setOperator(null);
-      setWaitingForOperand(true);
+      setWaitingForOperand(true); // Now waiting for new number or operator after result
     } catch (e: any) {
-      setResultDisplay(`Error: ${e.message}`);
-      setCurrentValue('');
+      setDisplayValue(`Error: ${e.message}`);
+      setCurrentValue(''); // Clear for error state
       setOperator(null);
       setWaitingForOperand(true);
     }
   };
 
   const scientificFunc = (func: string) => {
-    const inputValue = parseFloat(currentInput);
+    if (displayValue.includes('Error')) return; // If error, user must clear
+
+    // Extract the last number from the displayValue for scientific function
+    const lastNumberMatch = displayValue.match(/(\d+\.?\d*)$/);
+    let numberToOperateOn = displayValue; // Default to full displayValue if no match
+
+    if (lastNumberMatch) {
+      numberToOperateOn = lastNumberMatch[1];
+    } else if (!waitingForOperand) { // If not waiting for operand, then displayValue should be a number
+        // This means displayValue is an expression without a trailing number
+        // or a result already.
+        // If displayValue is just a number, it will be handled by parseFloat below.
+        // If it's something like "1+": error
+        if (/[+\-*/^]/.test(displayValue.slice(-1))) { // Ends with an operator
+            setDisplayValue('Error: Invalid input');
+            setCurrentValue('');
+            setOperator(null);
+            setWaitingForOperand(true);
+            return;
+        }
+    }
+
+
+    const inputValue = parseFloat(numberToOperateOn);
     if (isNaN(inputValue)) {
-      setResultDisplay('Error: Invalid input');
+      setDisplayValue('Error: Invalid input');
+      setCurrentValue('');
+      setOperator(null);
+      setWaitingForOperand(true);
       return;
     }
+
     let result: number;
     switch (func) {
       case 'sin':
-        result = Math.sin(inputValue * (Math.PI / 180)); // Convert degrees to radians
+        result = Math.sin(inputValue * (Math.PI / 180));
         break;
       case 'cos':
-        result = Math.cos(inputValue * (Math.PI / 180)); // Convert degrees to radians
+        result = Math.cos(inputValue * (Math.PI / 180));
         break;
       case 'tan':
-        result = Math.tan(inputValue * (Math.PI / 180)); // Convert degrees to radians
+        result = Math.tan(inputValue * (Math.PI / 180));
         break;
       case 'log':
         if (inputValue <= 0) {
-          setResultDisplay('Error: Log of non-positive');
+          setDisplayValue('Error: Log of non-positive');
+          setCurrentValue('');
+          setOperator(null);
+          setWaitingForOperand(true);
           return;
         }
-        result = Math.log10(inputValue); // Base 10 log
+        result = Math.log10(inputValue);
         break;
       case 'sqrt':
         if (inputValue < 0) {
-          setResultDisplay('Error: Sqrt of negative');
+          setDisplayValue('Error: Sqrt of negative');
+          setCurrentValue('');
+          setOperator(null);
+          setWaitingForOperand(true);
           return;
         }
         result = Math.sqrt(inputValue);
@@ -198,9 +196,12 @@ const Calculator: React.FC = () => {
       default:
         return;
     }
-    setResultDisplay(String(result));
-    setCurrentInput(String(result)); // Update currentInput with the result as well
-    setCurrentValue(String(result));
+
+    // Update displayValue by replacing the last number with the result
+    // If there was an operator before the number, replace the number part
+    const newDisplayValue = displayValue.replace(/(\d+\.?\d*)$/, String(result));
+    setDisplayValue(newDisplayValue);
+    setCurrentValue(String(result)); // Store result for chaining
     setOperator(null);
     setWaitingForOperand(true);
   };
@@ -218,7 +219,7 @@ const Calculator: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 p-4">
       <div className="bg-gray-700 p-6 rounded-lg shadow-xl max-w-sm mx-auto">
-        <Display value={resultDisplay.includes('Error') ? resultDisplay : (waitingForOperand ? resultDisplay : currentInput)} />
+        <Display value={displayValue} />
         <div className="grid grid-cols-4 gap-2 mt-4">
           {buttonLayout.map((row, rowIndex) => (
             row.map((buttonLabel, colIndex) => {
