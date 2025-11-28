@@ -38,7 +38,7 @@ const Calculator: React.FC = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [display, currentValue, operator, waitingForOperand]); // Dependencies for useEffect
+  }, [resultDisplay, currentInput, currentValue, operator, waitingForOperand]); // Dependencies for useEffect
 
 
   const append = (value: string) => {
